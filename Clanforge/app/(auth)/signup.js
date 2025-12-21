@@ -6,21 +6,21 @@ import ThemedLogo from '../../components/ThemedLogo'
 import Spacer from '../../components/Spacer'
 import { Link } from 'expo-router'
 
-const login = () => {
+const signup = () => {
   return (
     <ThemedView style={ styles.page }>
       <ThemedLogo style={styles.logo}/>
       <Spacer />
-      <ThemedText title={true} style={styles.title} >Login</ThemedText>
+      <ThemedText title={true} style={styles.title} >SignUp Now!</ThemedText>
       <Spacer height={100} />
-      <Link href={'/signup'} style={styles.link}>
-      <ThemedText style = {styles.register}>SignUp Now!</ThemedText>
+      <Link href={'/login'} style={styles.link}>
+      <ThemedText style = {styles.register}>Login Instead</ThemedText>
       </Link>
     </ThemedView>
   )
 }
 
-export default login
+export default signup
 
 const styles = StyleSheet.create({
   page: {

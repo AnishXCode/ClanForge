@@ -22,7 +22,7 @@ export const Colours = {
     light: {
         text: "#4B5F76", 
         title: "#1E293B", 
-        background: "#F5F7FA", 
+        background: "#EFF2F7", 
         navBackground: "#FFFFFF", 
         iconColour: "#93A2B6", 
         iconColourFocused: "#0EA5E9", 

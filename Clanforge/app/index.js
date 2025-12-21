@@ -1,19 +1,24 @@
-import { StyleSheet, Text, View, Image} from 'react-native'
+import { StyleSheet } from 'react-native'
 import { Link } from 'expo-router'
-
-import Logo from '../assets/clanforge.png'
+import ThemedView from '../components/ThemedView'
+import ThemedLogo from '../components/ThemedLogo'
+import ThemedText from '../components/ThemedText'
+import Spacer from '../components/Spacer'
 
 const index = () => {
   return (
-    <View style={styles.page} > 
-    <Image style={styles.logo} source={Logo} />
-    <Text>index</Text>
-    <Link href="/login" style={styles.link}>Login</Link>
-    </View>
+    <ThemedView style={styles.page} > 
+    <ThemedLogo style={styles.logo} />
+    <Spacer height={50} />
+    <ThemedText title={true} style={styles.welcome}>Welcome To ClanForge</ThemedText>
+    <Link href="/login" style={styles.link}><ThemedText>Login</ThemedText></Link>
+    <Link href="/signup" style={styles.link}><ThemedText>SignUp</ThemedText></Link>
+    <Spacer height={200} />
+    </ThemedView>
   )
 }
 
-export default index
+export default index;
 
 const styles = StyleSheet.create({
     logo: {
@@ -23,11 +28,14 @@ const styles = StyleSheet.create({
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
-        padding: 40,
-        backgroundColor: '#fff'
+        padding: 10
+    },
+    welcome: {
+      margin: 20
     },
     link: {
-      color: '#373F46',
-      
+      marginVertical: 10,
+      borderBottomWidth: 1
     }
+
 })
