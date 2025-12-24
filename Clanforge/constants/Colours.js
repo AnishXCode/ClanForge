@@ -6,7 +6,7 @@ export const Colours = {
 
     ranks: {
         bronze: "#CD7F32",
-        silver: "#E2E8F0",
+        silver: "#A6BBCD",
         gold: "#FFD700",
         platinum: "#00E096", 
         diamond: "#8CDDFF" 

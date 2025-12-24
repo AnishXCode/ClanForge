@@ -11,8 +11,11 @@ const index = () => {
     <ThemedLogo style={styles.logo} />
     <Spacer height={50} />
     <ThemedText title={true} style={styles.welcome}>Welcome To ClanForge</ThemedText>
-    <Link href="/login" style={styles.link}><ThemedText>Login</ThemedText></Link>
-    <Link href="/signup" style={styles.link}><ThemedText>SignUp</ThemedText></Link>
+ 
+    <Link href="/login" style={styles.link}><ThemedText style={styles.links}>Login</ThemedText></Link>
+  
+    <Link href="/signup" style={styles.link}><ThemedText style={styles.links}>SignUp</ThemedText></Link>
+    
     <Spacer height={200} />
     </ThemedView>
   )
@@ -31,11 +34,14 @@ const styles = StyleSheet.create({
         padding: 10
     },
     welcome: {
-      margin: 20
+      margin: 20,
+      fontSize: 24
     },
     link: {
-      marginVertical: 10,
-      borderBottomWidth: 1
+      borderBottomWidth: 1,
+      marginVertical: 10
+    },
+    links: {
+      fontSize: 20
     }
-
 })
