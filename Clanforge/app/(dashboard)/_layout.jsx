@@ -3,12 +3,14 @@ import { useColorScheme } from 'react-native'
 import { Colours } from '../../constants/colours'
 
 import { Ionicons } from '@expo/vector-icons';
+import UserOnly from '../../components/auth/userOnly';
 
 const DashboardLayout = () => {
     const colourScheme = useColorScheme()
     const theme = Colours[colourScheme] ?? Colours.light
 
   return (
+    <UserOnly>
     <Tabs 
         screenOptions={{ headerShown: false, tabBarStyle: {
                 backgroundColor: theme.navBackground,
@@ -17,8 +19,7 @@ const DashboardLayout = () => {
         },
     tabBarActiveTintColor: theme.iconColourFocused,
     tabBarInactiveTintColor: theme.iconColour
-}}
-    >
+    }} >
     <Tabs.Screen name='profile' options={{ title: '', tabBarIcon: ({ focused }) => (
         <Ionicons 
         size={24}
@@ -43,6 +44,7 @@ const DashboardLayout = () => {
         />
     )}} />   
     </Tabs>
+    </UserOnly>
   )
 }
 

@@ -8,11 +8,11 @@ import Spacer from '../../components/Spacer'
 
 const dashboard = () => {
   return (
-    <ThemedView style={styles.page} > 
+    <ThemedView style={styles.page} safe={true}> 
     < View style={styles.header}>
     <ThemedLogo style={styles.logo} />
     {/* Need to add notification and friend request icons */}
-    </View>
+    </View> 
     <Spacer height={10}/>
     <ThemedText title={true} style={styles.welcome}>Welcome, </ThemedText>
     <ThemedText title={true} style={styles.user}>User</ThemedText>
