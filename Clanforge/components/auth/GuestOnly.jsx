@@ -1,8 +1,7 @@
 import { useEffect } from "react";
-import { useUser } from "../../contexts/useUser";
+import { useUser } from "../../hooks/useUser";
 import { useRouter } from "expo-router";
-import ThemedView from "../ThemedView";
-import ThemedText from "../ThemedText";
+import ThemedLoader from "../ThemedLoader";
 
 const GuestOnly = ({ children }) => {
     const { user, authCheck } = useUser()
@@ -10,17 +9,18 @@ const GuestOnly = ({ children }) => {
 
     useEffect(() => {
         if(authCheck && user !== null) {
-           router.replace('/dashboard')
+            if (!user.profile) {
+                router.replace('/avatar');
+            } else {
+                router.replace('/dashboard')
+            }
         }
     }, [user, authCheck])
 
 
     if(!authCheck || user){
         return (    
-            <ThemedView style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-                <ThemedText style={{ textTransform: 'uppercase', fontSize: 22}}>Loading...</ThemedText>
-            </ThemedView>
-            
+            <ThemedLoader />
         )
     }
 

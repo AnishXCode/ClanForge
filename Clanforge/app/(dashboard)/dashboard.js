@@ -1,4 +1,5 @@
 import { StyleSheet, View } from 'react-native'
+import { useUser } from '../../hooks/useUser'
 
 import ThemedView from '../../components/ThemedView'
 import ThemedText from '../../components/ThemedText'
@@ -7,15 +8,18 @@ import ThemedCard from '../../components/ThemedCard'
 import Spacer from '../../components/Spacer'
 
 const dashboard = () => {
+
+    const { user } = useUser()
+    // console.log(user)
   return (
     <ThemedView style={styles.page} safe={true}> 
     < View style={styles.header}>
-    <ThemedLogo style={styles.logo} />
+    <ThemedLogo style={styles.logo} header={true}/>
     {/* Need to add notification and friend request icons */}
     </View> 
     <Spacer height={10}/>
     <ThemedText title={true} style={styles.welcome}>Welcome, </ThemedText>
-    <ThemedText title={true} style={styles.user}>User</ThemedText>
+    <ThemedText title={true} style={styles.user}>{user.name}</ThemedText>
     <Spacer height={20}/>
     <ThemedCard style={styles.card} >
         <ThemedText title={true} style={[styles.user, { fontSize: 22}]}>Your Status</ThemedText>

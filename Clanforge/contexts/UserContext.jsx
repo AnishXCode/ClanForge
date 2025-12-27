@@ -1,6 +1,6 @@
 import { createContext, useEffect, useState } from "react";
-import { account } from "../lib/appwrite"
-import { ID } from "react-native-appwrite"
+import { account, databases, appwriteConfig } from "../lib/appwrite"
+import { ID } from "react-native-appwrite";
 
 
 export const UserContext = createContext();
@@ -9,11 +9,34 @@ export function UserProvider ({ children }) {
     const [user, setUser] = useState(null)
     const [authCheck, setAuthCheck] = useState(false)
 
+    async function fetchUserAndProfile() {
+        try {
+            const accountData = await account.get();
+            console.log("Account Data: ", accountData)
+            let profile = null
+            try {
+                profile = await databases.getRow({
+                    databaseId: appwriteConfig.DATABASE_ID,
+                    tableId: appwriteConfig.TABLE_ID,
+                    rowId: accountData.$id
+                })
+                console.log(profile)
+            } catch (error) {
+                console.log("Profile not found (New User),", error);
+            }
+            setUser({ ...accountData, profile: profile });
+
+        } catch (error) {
+            setUser(null);
+        } finally {
+            setAuthCheck(true);
+        }
+    }
+
     async function login(email, password) {
         try {
-            await account.createEmailPasswordSession({email, password})
-            const response = await account.get()
-            setUser(response)
+            await account.createEmailPasswordSession({email, password});
+            await fetchUserAndProfile();
         } catch (error) {
             throw error;
         }
@@ -43,14 +66,7 @@ export function UserProvider ({ children }) {
     }
 
     async function getInitialUser() {
-        try {
-            const response = await account.get()
-            setUser(response)
-        } catch (error) {
-            setUser(null)
-        } finally {
-            setAuthCheck(true)
-        }
+        fetchUserAndProfile();
     }
 
     useEffect(() => {

@@ -1,5 +1,5 @@
 import { StyleSheet, View } from 'react-native'
-import { useUser } from '../../contexts/useUser'
+import { useUser } from '../../hooks/useUser'
 import { useState } from 'react'
 import { Colours } from '../../constants/colours'
 
@@ -31,7 +31,7 @@ const profile = () => {
         <ThemedLogo style={styles.logo} header={true}/>
         {/* Need to add notification and friend request icons */}
         </View>
-        <Spacer />
+        <Spacer height={80}/>
     
         <ThemedCard style={styles.card} >
             <ThemedText title={true} style={[styles.user, { fontSize: 22}]}>Profile</ThemedText>
@@ -96,6 +96,7 @@ const styles = StyleSheet.create({
         width: '90%'
     },
     logout: {
+        color: Colours.primaryTextColour,
         fontSize: 18,
         fontWeight: 600
     },

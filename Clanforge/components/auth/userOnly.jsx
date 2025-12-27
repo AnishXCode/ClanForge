@@ -1,8 +1,7 @@
 import { useEffect } from "react";
-import { useUser } from "../../contexts/useUser";
+import { useUser } from "../../hooks/useUser";
 import { useRouter } from "expo-router";
-import ThemedView from "../ThemedView";
-import ThemedText from "../ThemedText";
+import ThemedLoader from "../ThemedLoader";
 
 const UserOnly = ({ children }) => {
     const { user, authCheck } = useUser()
@@ -17,10 +16,7 @@ const UserOnly = ({ children }) => {
 
     if(!authCheck || !user){
         return (    
-            <ThemedView style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-                <ThemedText style={{ textTransform: 'uppercase', fontSize: 22}}>Loading...</ThemedText>
-            </ThemedView>
-            
+            <ThemedLoader /> 
         )
     }
 

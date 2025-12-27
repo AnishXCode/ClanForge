@@ -1,4 +1,4 @@
-import { Keyboard, StyleSheet, Text, TouchableWithoutFeedback, View } from 'react-native'
+import { Alert, Keyboard, StyleSheet, Text, TouchableWithoutFeedback, useColorScheme, View } from 'react-native'
 import { useState } from 'react'
 import { Link } from 'expo-router'
 
@@ -8,34 +8,44 @@ import ThemedLogo from '../../components/ThemedLogo'
 import ThemedButton from '../../components/ThemedButton'
 import ThemedTextInput from '../../components/ThemedTextInput'
 import Spacer from '../../components/Spacer'
-import { useUser } from '../../contexts/useUser'
+import { useUser } from '../../hooks/useUser'
 import { Colours } from '../../constants/colours'
 
 
 
 const login = () => {
+  const colourScheme = useColorScheme()
+  const theme = Colours[colourScheme] ?? Colours.light
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false)
 
   const { login } = useUser();
 
   const handleSubmit = async () => {
+    setLoading(true)
+    if(!email || !password){
+      Alert.alert("Email and password are required to login")
+      return;
+    }
     setError(null)
+    
     try{
       await login(email, password)
     } catch (error) {
       setError(error.message)
     }
   }
+  
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
     <ThemedView style={ styles.page }>
       <ThemedLogo style={styles.logo} />
-      <Spacer />
+      <Spacer height={80}/>
       <ThemedText title={true} style={[ styles.title, {textTransform: 'uppercase'} ]} >Sign In</ThemedText>
-      <Spacer height={20}/>
+      <Spacer height={30}/>
 
       <ThemedTextInput 
           style = {{ width: '85%', marginBottom: 20 }}
@@ -43,6 +53,8 @@ const login = () => {
           keyboardType="email-address"
           onChangeText={setEmail}
           value={email}
+          placeholderTextColor= {theme.text}
+          autoCapitalize="none"
       />
 
       <ThemedTextInput 
@@ -51,25 +63,31 @@ const login = () => {
           onChangeText={setPassword}
           value={password}
           secureTextEntry
+          placeholderTextColor= {theme.text}
+          autoCapitalize="none"
       />
 
-      <ThemedButton onPress={handleSubmit} style={styles.btn} >
-        <ThemedText style={{ fontWeight: 600, fontSize: 18 }} title={true}>Login</ThemedText>
+      <ThemedButton onPress={handleSubmit} style={styles.btn} disabled={loading}>
+        <ThemedText style={{ color: Colours.primaryTextColour, fontWeight: 600, fontSize: 18 }} title={true}>Login</ThemedText>
       </ThemedButton>
+
+
       {error && 
       <Text style={styles.error}>{error}</Text>    
       }
-      <Spacer height={20}/>
+      <Spacer height={10}/>
+
+
+
       <View style={styles.singup}>
       <ThemedText  style={styles.text} >Do not have an account?   </ThemedText>
-      <Link href={'/signup'} style={styles.link}>
+      <ThemedButton style={styles.signupbtn}>
+      <Link href={'/signup'}>
       <ThemedText style = {styles.register}>SignUp</ThemedText>
       </Link>
+      </ThemedButton>
       </View>
 
-      <Link href={'/dashboard'} style={styles.link}>
-      <ThemedText style = {styles.register}>Dashboard</ThemedText>
-      </Link>
     </ThemedView>
     </TouchableWithoutFeedback>
   )
@@ -94,10 +112,6 @@ const styles = StyleSheet.create({
   logo: {
      margin: 20,
   },
-  link: {
-    marginVertical: 10,
-    borderBottomWidth: 1
-  },
   btn: {
    width: '85%',
    justifyContent: 'center',
@@ -117,6 +131,15 @@ const styles = StyleSheet.create({
   singup: {
     display: 'flex',
     flexDirection: 'row',
-    alignItems: 'center'
+    alignItems: 'center',
+    paddingLeft: 70
+  },
+  register: {
+    color: Colours.primaryTextColour,
+    fontWeight: 600
+  },
+  signupbtn: {
+    paddingVertical: 10,
+    borderRadius: 6
   }
 })

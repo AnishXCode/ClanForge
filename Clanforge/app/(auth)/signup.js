@@ -1,4 +1,4 @@
-import { Keyboard ,StyleSheet, Text, TouchableWithoutFeedback } from 'react-native'
+import { Keyboard ,StyleSheet, Text, View, TouchableWithoutFeedback, useColorScheme } from 'react-native'
 import { useState } from 'react'
 import { Link } from 'expo-router'
 
@@ -8,10 +8,12 @@ import ThemedLogo from '../../components/ThemedLogo'
 import ThemedButton from '../../components/ThemedButton'
 import ThemedTextInput from '../../components/ThemedTextInput'
 import Spacer from '../../components/Spacer'
-import { useUser } from '../../contexts/useUser'
+import { useUser } from '../../hooks/useUser'
 import { Colours } from '../../constants/colours'
 
 const signup = () => {
+  const colourScheme = useColorScheme()
+  const theme = Colours[colourScheme] ?? Colours.light
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -32,15 +34,17 @@ const signup = () => {
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
     <ThemedView style={ styles.page }>
       <ThemedLogo style={styles.logo}/>
-      <Spacer />
-      <ThemedText title={true} style={styles.title} >SignUp</ThemedText>
-      <Spacer height={20} />
+      <Spacer height={80}/>
+      <ThemedText title={true} style={[styles.title, {textTransform: 'uppercase'}]} >SignUp</ThemedText>
+      <Spacer height={30} />
 
       <ThemedTextInput 
           style = {{ width: '85%', marginBottom: 20 }}
-          placeholder='UserName'        
+          placeholder='Gamer Tag (e.g. ShadowSlayer)'        
           onChangeText={setUsername}
           value={username}
+          placeholderTextColor= {theme.text}
+          autoCapitalize="none"
       />
 
       <ThemedTextInput 
@@ -49,6 +53,8 @@ const signup = () => {
           keyboardType="email-address"
           onChangeText={setEmail}
           value={email}
+          placeholderTextColor= {theme.text}
+          autoCapitalize="none"
       />
 
       <ThemedTextInput 
@@ -57,18 +63,31 @@ const signup = () => {
           onChangeText={setPassword}
           value={password}
           secureTextEntry
+          placeholderTextColor= {theme.text}
+          autoCapitalize="none"
       />
+
+      <ThemedButton onPress={handleSubmit} style={styles.btn} >
+        <ThemedText style={{ color: Colours.primaryTextColour, fontWeight: 600, fontSize: 18}} title={true}>Register</ThemedText>
+      </ThemedButton>
 
       {error && 
         <Text style={styles.error}>{error}</Text>    
       }
 
-      <ThemedButton onPress={handleSubmit} style={styles.btn} >
-        <ThemedText style={{ fontWeight: 600, fontSize: 18}} title={true}>Register</ThemedText>
-      </ThemedButton>
-      <Link href={'/login'} style={styles.link}>
-      <ThemedText style = {styles.register}>Login Instead</ThemedText>
+      <Spacer height={10}/>
+
+
+      <View style={styles.singup}>
+      <ThemedText  style={styles.text} >Already have an account?   </ThemedText>
+      <ThemedButton style={styles.signupbtn}>
+      <Link href={'/login'}>
+      <ThemedText style = {styles.register}>Login</ThemedText>
       </Link>
+      </ThemedButton>
+      </View>
+
+      
     </ThemedView>
     </TouchableWithoutFeedback>
   )
@@ -82,7 +101,7 @@ const styles = StyleSheet.create({
     fontWeight: 700
   },
   text: {
-    fontSize: 20
+    fontSize: 16
   },
   page: {
     flex: 1,
@@ -112,5 +131,19 @@ const styles = StyleSheet.create({
    borderRadius: 6,
    marginHorizontal: 10,
    width: '90%'
+  },
+  singup: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingLeft: 70
+  },
+  register: {
+    color: Colours.primaryTextColour,
+    fontWeight: 600
+  },
+  signupbtn: {
+    paddingVertical: 9,
+    borderRadius: 6
   }
 })

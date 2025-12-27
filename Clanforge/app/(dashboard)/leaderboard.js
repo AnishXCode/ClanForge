@@ -10,7 +10,7 @@ const leaderboard = () => {
   return (
     <ThemedView style={styles.page} > 
     < View style={styles.header}>
-    <ThemedLogo style={styles.logo} />
+    <ThemedLogo style={styles.logo} header={true}/>
     {/* Need to add notification and friend request icons */}
     </View>
     <Spacer height={10}/>
