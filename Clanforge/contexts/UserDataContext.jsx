@@ -7,7 +7,9 @@ export const UserDataContext = createContext()
 
 export function UserDataProvider({ children }) {
     const {user} = useUser()
-    const [userData, setUserData] = useState([])
+    const [users, setUsers] = useState(null)
+    const [userData, setUserData] = useState(null)
+
     let [localData, setLocalData] = useState({
         genrePreferences: [],
         avatar: ''
@@ -15,16 +17,15 @@ export function UserDataProvider({ children }) {
 
     async function fetchUsers(queries) {
         try {
-            const userdata = await databases.listRows({
+            const allusers = await databases.listRows({
                 databaseId: appwriteConfig.DATABASE_ID,
                 tableId: appwriteConfig.TABLE_ID,
                 ...queries
             })
-            setUserData(userdata)
+            setUsers(allusers)
         } catch( error) {
             console.log(error.message)
         }
-        
     }
 
     async function fetchUserDataByID(id) {
@@ -35,6 +36,7 @@ export function UserDataProvider({ children }) {
                 rowId: id
             })
             setUserData(userdata)
+            return userdata
         } catch( error ) {
             console.log(error.message)
         }
@@ -57,7 +59,7 @@ export function UserDataProvider({ children }) {
                     Permission.delete(Role.user(user.$id))
                 ]
             })
-            fetchUserDataByID(user.$id)
+            setUserData(newuser)
             return newuser
         } catch( error ) {
             console.log(error.message)
@@ -70,9 +72,12 @@ export function UserDataProvider({ children }) {
                 databaseId: appwriteConfig.DATABASE_ID,
                 tableId: appwriteConfig.TABLE_ID,
                 rowId: user.$id,
-                ...data
+                data: {
+                    ...data
+                }
         })
-            setUserData(updatedUser)
+        setUserData(updatedUser)
+        return updatedUser
         } catch( error) {
             console.log(error.message)
         }

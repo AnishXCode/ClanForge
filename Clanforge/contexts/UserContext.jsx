@@ -12,7 +12,6 @@ export function UserProvider ({ children }) {
     async function fetchUserAndProfile() {
         try {
             const accountData = await account.get();
-            console.log("Account Data: ", accountData)
             let profile = null
             try {
                 profile = await databases.getRow({
@@ -20,11 +19,11 @@ export function UserProvider ({ children }) {
                     tableId: appwriteConfig.TABLE_ID,
                     rowId: accountData.$id
                 })
-                console.log(profile)
             } catch (error) {
                 console.log("Profile not found (New User),", error);
+            } finally {
+                setUser({ ...accountData, profile: profile });
             }
-            setUser({ ...accountData, profile: profile });
 
         } catch (error) {
             setUser(null);
@@ -65,13 +64,13 @@ export function UserProvider ({ children }) {
         }    
     }
 
-    async function getInitialUser() {
-        fetchUserAndProfile();
-    }
-
     useEffect(() => {
-        getInitialUser()
+        fetchUserAndProfile()
     }, [])
+
+    // useEffect(() => {
+    //     console.log(user, "this is the user data")
+    // }, [fetchUserAndProfile])
 
     return(
         <UserContext.Provider value={{ user, login, signup, logout, authCheck }}>

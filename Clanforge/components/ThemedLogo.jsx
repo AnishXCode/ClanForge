@@ -24,7 +24,7 @@ const styles = StyleSheet.create({
         width: 200
     },
     headerlogo: {
-      height: 80,
-      width: 85
+      height: 60,
+      width: 70
     }
 })

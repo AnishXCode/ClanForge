@@ -8,13 +8,11 @@ import ThemedTextInput from '../../components/ThemedTextInput';
 import ThemedButton from '../../components/ThemedButton';
 import ThemedCard from '../../components/ThemedCard';
 import { Colours } from '../../constants/colours';
-import { useUser } from '../../hooks/useUser'; 
 import { useUserData } from '../../hooks/useUserData';
 import Spacer from '../../components/Spacer';
 
 const userpreferences = () => {
   const router = useRouter();
-  const { user } = useUser(); 
   const { localData, createUser } = useUserData();
   const colourScheme = useColorScheme()
   const theme = Colours[colourScheme] ?? Colours.light
@@ -42,7 +40,7 @@ const userpreferences = () => {
 
       const response = await createUser(finalPayload)
       console.log("User Created: ",response)
-      router.replace('/(dashboard)');
+      router.replace('/dashboard');
 
     } catch (error) {
       console.error(error);

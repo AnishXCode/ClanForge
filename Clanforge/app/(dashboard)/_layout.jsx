@@ -1,16 +1,41 @@
 import { Tabs } from 'expo-router'
-import { useColorScheme } from 'react-native'
+import { StyleSheet, useColorScheme, View, TouchableOpacity } from 'react-native'
 import { Colours } from '../../constants/colours'
 
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import UserOnly from '../../components/auth/userOnly';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import ThemedLogo from '../../components/ThemedLogo';
+import ThemedText from '../../components/ThemedText';
 
 const DashboardLayout = () => {
     const colourScheme = useColorScheme()
     const theme = Colours[colourScheme] ?? Colours.light
 
+    const insets = useSafeAreaInsets()
+
   return (
     <UserOnly>
+        <View style={{ backgroundColor: theme.background, paddingTop: insets.top}}>
+        <View style={styles.headerContainer}>
+            <ThemedLogo style={styles.logo} header={true}/>
+            <View style={styles.headerIcons}>
+                <TouchableOpacity>
+                  <Ionicons name="notifications" size={26} color={theme.text} style={styles.icon} />
+                  <View style={[styles.badge, {borderColor: theme.border}]}>
+                    <ThemedText style={styles.badgeText}>2</ThemedText>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.friendIconWrapper}>
+                  <FontAwesome5 name="user-friends" size={22} color={theme.text} style={styles.icon} />
+                  <View style={[styles.badge, {borderColor: theme.border}]}>
+                    <ThemedText style={styles.badgeText}>1</ThemedText>
+                  </View>
+                </TouchableOpacity>
+            </View>
+        </View>
+    </View>
+
     <Tabs 
         screenOptions={{ headerShown: false, tabBarStyle: {
                 backgroundColor: theme.navBackground,
@@ -49,3 +74,39 @@ const DashboardLayout = () => {
 }
 
 export default DashboardLayout
+
+const styles = StyleSheet.create({
+    headerContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: 20
+    },
+    headerIcons: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    icon: {
+      marginLeft: 20,
+    },
+    friendIconWrapper: {
+      position: 'relative',
+    },
+    badge: {
+      position: 'absolute',
+      top: -5,
+      right: -8,
+      backgroundColor: Colours.warning, 
+      borderRadius: 10,
+      width: 16,
+      height: 16,
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderWidth: 1.5,
+    },
+    badgeText: {
+      color: 'white',
+      fontSize: 9,
+      fontWeight: 'bold',
+    },
+})

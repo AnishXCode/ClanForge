@@ -8,7 +8,8 @@ export const appwriteConfig ={
         PROJECT_ID: "694bec8c0024d1f97ccc",
         DATABASE_ID: "694d834e00043837d594",
         TABLE_ID: "users",
-        BUCKET_ID: "694e89ee0001c7a5501a"
+        BUCKET_ID: "694e89ee0001c7a5501a",
+        GAMES_TABLE_ID: "games"
 }
 
 

@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View, useColorScheme, TouchableOpacity, Alert, Image } from 'react-native'
-import { useEffect, useState } from 'react'
-import { Link, useRouter } from 'expo-router'
+import { useState } from 'react'
+import { useRouter } from 'expo-router'
 import { useUser } from '../../hooks/useUser';
 import * as ImagePicker from 'expo-image-picker';
 import { useUserData } from '../../hooks/useUserData'
@@ -11,8 +11,7 @@ import ThemedText from '../../components/ThemedText'
 import ThemedButton from '../../components/ThemedButton'
 import Spacer from '../../components/Spacer'
 import { Colours } from '../../constants/colours'
-import { uploadAvatar } from '../../contexts/uploadimage';
-import { getAvatar } from '../../contexts/getimage';
+import { getAvatar, uploadAvatar } from '../../contexts/ImageContext';
 
 const avatar = () => {
   const router = useRouter()
@@ -122,10 +121,8 @@ const avatar = () => {
         <ThemedText style={{ color: Colours.primaryTextColour, fontWeight: 600, fontSize: 18}} title={true}>Next</ThemedText>
       </ThemedButton>
 
-      <ThemedButton style={[styles.btn, {backgroundColor: theme.uiBackground}]} disabled={uploading} >
-        <Link href={'/genrepreferences'}>
+      <ThemedButton onPress={() => router.push('/genrepreferences')} style={[styles.btn, {backgroundColor: theme.uiBackground}]} disabled={uploading} >
         <ThemedText style={{ color: Colours.primaryTextColour, fontWeight: 600, fontSize: 18}} title={true}>Skip</ThemedText>
-        </Link>
       </ThemedButton>
     </View>
 
