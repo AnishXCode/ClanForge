@@ -19,15 +19,19 @@ const signup = () => {
   const [password, setPassword] = useState('')
   const [username, setUsername] = useState('')
   const [error, setError] = useState(null);
+  const [disabled, setDisabled] = useState(false)
 
   const { signup } = useUser()
 
   const handleSubmit = async () => {
+    setDisabled(true)
     setError(null)
     try{
       await signup(email, password, username)
     } catch (error) {
       setError(error.message)
+    } finally {
+      setDisabled(false)
     }
   }
   return (
@@ -67,7 +71,7 @@ const signup = () => {
           autoCapitalize="none"
       />
 
-      <ThemedButton onPress={handleSubmit} style={styles.btn} >
+      <ThemedButton onPress={handleSubmit} style={styles.btn} disabled={disabled}>
         <ThemedText style={{ color: Colours.primaryTextColour, fontWeight: 600, fontSize: 18}} title={true}>Register</ThemedText>
       </ThemedButton>
 
@@ -80,7 +84,7 @@ const signup = () => {
 
       <View style={styles.singup}>
       <ThemedText  style={styles.text} >Already have an account?   </ThemedText>
-      <ThemedButton style={styles.signupbtn}>
+      <ThemedButton style={styles.signupbtn} disabled={disabled}>
       <Link href={'/login'}>
       <ThemedText style = {styles.register}>Login</ThemedText>
       </Link>

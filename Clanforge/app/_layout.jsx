@@ -28,6 +28,7 @@ const RootLayout = () => {
             <Stack.Screen name="(auth)" options={{ headerShown: false }} />
             <Stack.Screen name="(dashboard)" options={{ headerShown: false }} />
             <Stack.Screen name="(setup)" options={{ headerShown: false }} />
+            <Stack.Screen name="(game)" options={{ headerShown: false }} />
           </Stack>
         </AppDataProvider>
       </UserDataProvider>

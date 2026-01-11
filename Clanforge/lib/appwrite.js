@@ -9,7 +9,8 @@ export const appwriteConfig ={
         DATABASE_ID: "694d834e00043837d594",
         TABLE_ID: "users",
         BUCKET_ID: "694e89ee0001c7a5501a",
-        GAMES_TABLE_ID: "games"
+        GAMES_TABLE_ID: "games",
+        LOBBY_TABLE_ID: "lobby"
 }
 
 

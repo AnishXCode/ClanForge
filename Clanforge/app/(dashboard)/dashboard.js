@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { StyleSheet, View, ScrollView, TouchableOpacity, FlatList } from 'react-native';
 import { useUser } from '../../hooks/useUser';
 import { useUserData } from '../../hooks/useUserData';
+import { useRouter } from 'expo-router';
 
 import ThemedView from '../../components/ThemedView';
 import ThemedText from '../../components/ThemedText';
@@ -22,32 +23,57 @@ const Dashboard = () => {
     const { user } = useUser();
     const { userData, fetchUserDataByID } = useUserData();
     const { fetchAllGames, games } = useAppData()
+    const router = useRouter()
 
     const [sortedGenres, setSortedGenres] = useState([]);
 
     useEffect(() => {
+        fetchAllGames();
         if (user?.$id) {
             fetchUserDataByID(user.$id);
         }
-        fetchAllGames();
     }, [user]);
 
     useEffect(() => {
-        if(!userData || !games) return;
+        if(!games.rows) return;
+        const allGames = games.rows.map(game => (
+        {
+                name: game.name,
+                active_players: game.active_players,
+                gameId: game.gameId,
+                genre: game.genre,
+                image_url: game.image_url,
+                maxPlayers: game.maxPlayers,
+                game_url: game.game_url,
+                scoreSelector: game.scoreSelector,
+                gameOverSelector: game.gameOverSelector,
+                scoreIndex: game.scoreIndex,
+                finalScoreSelector: game.finalScoreSelector
+        })
+        );
+        if(!userData || !games || !allGames) return;
 
-        const allGames = games.rows;
-        console.log(allGames)
-        const processedData = allGames.map(game => game.genre)
-        console.log(processedData)
+        const allGenres = allGames.map(game => game.genre)
+        const uniqueGenres = [...new Set(allGenres)]
 
-        // categories.sort((a, b) => {
-        //     if (a.isPreferred && !b.isPreferred) return -1; 
-        //     if (!a.isPreferred && b.isPreferred) return 1;  
-        //     return 0; 
-        // });
+        const userPrefs = userData.genrePreferences || [];
 
-        // setSortedGenres(categories);
-    },[userData])
+        const categories = uniqueGenres.map(genre => {
+            return{
+                genre: genre ,
+                games: allGames.filter(games => games.genre === genre),
+                isPreferred: userPrefs.includes(genre)
+            }
+        })
+
+        categories.sort((a, b) => {
+            if (a.isPreferred && !b.isPreferred) return -1; 
+            if (!a.isPreferred && b.isPreferred) return 1;  
+            return 0; 
+        });
+
+        setSortedGenres(categories);
+    },[userData, games])
 
     if(userData === null){
         return (
@@ -55,9 +81,26 @@ const Dashboard = () => {
         )
     }
 
+    const handleGameClick = async (item) => {
+        router.push({
+        pathname: "/(game)/[id]", 
+        params: { 
+            id: item.gameId,
+            name: item.name,
+            genre: item.genre,
+            game_url: item.game_url,
+            maxPlayers: item.maxPlayers,
+            scoreSelector: item.scoreSelector, 
+            gameOverSelector: item.gameOverSelector,
+            scoreIndex: item.scoreIndex,
+            finalScoreSelector: item.finalScoreSelector
+        } 
+    });
+    }
+
     const renderGameCard = ({ item }) => (
-        <TouchableOpacity style={styles.gameCard}>
-            {/* Placeholder for Game Image */}
+        <TouchableOpacity onPress={() => handleGameClick(item)} style={styles.gameCard}>
+            {/* Game Image Code needs to added */}
             <View style={styles.gameIconPlaceholder} /> 
             <ThemedText style={styles.gameCardText}>{item.name}</ThemedText>
             <ThemedText style={styles.gameActiveText}>{item.active_players}</ThemedText>
@@ -70,19 +113,13 @@ const Dashboard = () => {
                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
                     <ThemedText style={styles.categoryTitle}>{item.genre}</ThemedText>
                     
-                    {/* Optional: Add a 'FOR YOU' badge if it matches preferences */}
-                    {item.isPreferred && (
-                        <View style={styles.preferredBadge}>
-                            <ThemedText style={styles.preferredText}>FOR YOU</ThemedText>
-                        </View>
-                    )}
                 </View>
                 <ThemedText style={styles.categoryArrows}>{'< >'}</ThemedText>
             </View>
             <FlatList 
                 data={item.games}
                 renderItem={renderGameCard}
-                keyExtractor={game => game.id}
+                keyExtractor={game => game.gameId}
                 horizontal
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={styles.gamesList}
@@ -134,14 +171,14 @@ const Dashboard = () => {
                 <ThemedCard>
                 <Spacer height={15} />
 
-                {GAMES_DATA.map(category => (
+                {sortedGenres.map(category => (
                     <View key={category.genre}>
                         {renderCategory({ item: category })}
                         <Spacer height={15} />
                     </View>
                 ))}
 
-                {GAMES_DATA.length === 0 && (
+                {sortedGenres.length === 0 && (
                      <ThemedText style={{opacity: 0.5, fontStyle: 'italic', marginLeft: 10}}>Loading games...</ThemedText>
                 )}
 

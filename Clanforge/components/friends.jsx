@@ -6,6 +6,7 @@ import ThemedText from './ThemedText';
 import ThemedCard from './ThemedCard';
 import ThemedLoader from './ThemedLoader'
 import { useUserData } from '../hooks/useUserData';
+import { useUser } from '../hooks/useUser';
 
 
 
@@ -21,22 +22,17 @@ const Friends = () => {
       { id: 5, name: 'PLAYER 3', rank: 'SILVER 1', status: 'INGAME', action: 'SPECTATE' },
     ]);
 
-    const [allFriendsString, setAllFriendsString] = useState(userData?.friends)
-
-    useEffect(() => {
-      if(userData){
-        setAllFriendsString(userData.friends)
-      }
-    }, [userData])
-
     const [allFriends, setAllFriends] = useState(null)
 
     useEffect(() => {
-      if(allFriendsString){
-      setAllFriends(allFriendsString.map(friend => JSON.parse(friend)))
-    }
-    },[userData, allFriendsString])
-    
+      if(userData?.friends){
+        const friends = JSON.parse(userData.friends)
+        setAllFriends(friends)
+        console.log(friends)
+      } else {
+        setAllFriends([])
+      }
+    }, [userData])
 
     const colourScheme = useColorScheme();
     const theme = Colours[colourScheme] ?? Colours.light;
@@ -60,7 +56,7 @@ const Friends = () => {
       try{
         const newFriendList = allFriends.filter(f => f !== selectedFriend)
         
-        const newFriendListString = newFriendList.map(friend => JSON.stringify(friend))
+        const newFriendListString = JSON.stringify(newFriendList)
         const response = await updateUserData({
           friends: newFriendListString
         })
