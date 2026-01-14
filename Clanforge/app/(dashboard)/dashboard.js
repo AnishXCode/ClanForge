@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View, ScrollView, TouchableOpacity, FlatList } from 'react-native';
+import { StyleSheet, View, ScrollView, TouchableOpacity, FlatList, useColorScheme } from 'react-native';
 import { useUser } from '../../hooks/useUser';
 import { useUserData } from '../../hooks/useUserData';
 import { useRouter } from 'expo-router';
@@ -11,6 +11,7 @@ import Spacer from '../../components/Spacer';
 import Friends from '../../components/friends'; 
 import ThemedLoader from '../../components/ThemedLoader';
 import { useAppData } from '../../hooks/useAppData';
+import { Colours } from '../../constants/colours';
 
 const GAMES_DATA = [
     { id: '1', name: 'Game', type: 'Action' },
@@ -21,9 +22,11 @@ const GAMES_DATA = [
 
 const Dashboard = () => {
     const { user } = useUser();
-    const { userData, fetchUserDataByID } = useUserData();
+    const { userData, fetchUserDataByID, fetchUsers } = useUserData();
     const { fetchAllGames, games } = useAppData()
     const router = useRouter()
+    const colourScheme = useColorScheme()
+    const theme = Colours[colourScheme] ?? Colours.light
 
     const [sortedGenres, setSortedGenres] = useState([]);
 
@@ -31,6 +34,7 @@ const Dashboard = () => {
         fetchAllGames();
         if (user?.$id) {
             fetchUserDataByID(user.$id);
+            fetchUsers();
         }
     }, [user]);
 
@@ -38,17 +42,17 @@ const Dashboard = () => {
         if(!games.rows) return;
         const allGames = games.rows.map(game => (
         {
-                name: game.name,
-                active_players: game.active_players,
-                gameId: game.gameId,
-                genre: game.genre,
-                image_url: game.image_url,
-                maxPlayers: game.maxPlayers,
-                game_url: game.game_url,
-                scoreSelector: game.scoreSelector,
-                gameOverSelector: game.gameOverSelector,
-                scoreIndex: game.scoreIndex,
-                finalScoreSelector: game.finalScoreSelector
+            name: game.name,
+            active_players: game.active_players,
+            gameId: game.gameId,
+            genre: game.genre,
+            image_url: game.image_url,
+            maxPlayers: game.maxPlayers,
+            game_url: game.game_url,
+            scoreSelector: game.scoreSelector,
+            gameOverSelector: game.gameOverSelector,
+            scoreIndex: game.scoreIndex,
+            finalScoreSelector: game.finalScoreSelector
         })
         );
         if(!userData || !games || !allGames) return;
@@ -99,12 +103,17 @@ const Dashboard = () => {
     }
 
     const renderGameCard = ({ item }) => (
-        <TouchableOpacity onPress={() => handleGameClick(item)} style={styles.gameCard}>
-            {/* Game Image Code needs to added */}
-            <View style={styles.gameIconPlaceholder} /> 
-            <ThemedText style={styles.gameCardText}>{item.name}</ThemedText>
+        <View>
+            <TouchableOpacity onPress={() => handleGameClick(item)} style={styles.gameCard}>
+                {/* Game Image Code needs to be added */}
+                <View style={styles.gameIconPlaceholder} /> 
+                <ThemedText style={[styles.gameCardText]}>{item.name}</ThemedText>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => handleGameClick(item)} style={styles.gameText}>
+            <ThemedText style={[styles.gameCardText, {color: theme.text}]}>{item.name}</ThemedText>
             <ThemedText style={styles.gameActiveText}>{item.active_players}</ThemedText>
-        </TouchableOpacity>
+            </TouchableOpacity>
+        </View>
     );
 
     const renderCategory = ({ item }) => (
@@ -191,13 +200,13 @@ const Dashboard = () => {
                 <Spacer height={25} />
 
                 <ThemedText title={true} style={styles.cardTitle}>Community</ThemedText>
-                <ThemedCard style={[styles.statusCard, { height: 150 }]}>
-                    <ThemedText style={styles.cardTitle}>LATEST NEWS</ThemedText>
+                <ThemedCard style={[styles.statusCard]}>
+                    <ThemedText style={styles.cardTitle}>Latest News</ThemedText>
                     <Spacer height={10} />
 
                     <TouchableOpacity style={styles.communityItem}>
-                        <View style={styles.newsTag}><ThemedText style={styles.tagText}>EVENT</ThemedText></View>
-                        <View style={{flex: 1}}>
+                        <View style={styles.newsTag}><ThemedText style={styles.tagText}>Event</ThemedText></View>
+                        <View >
                             <ThemedText style={styles.communityTitle}>Weekend Tournament!</ThemedText>
                             <ThemedText style={styles.communitySub}>Double XP for all Action games starts in 2h.</ThemedText>
                         </View>
@@ -205,17 +214,17 @@ const Dashboard = () => {
 
                     <Spacer height={10} />
 
-                    <TouchableOpacity style={styles.communityItem}>
-                        <View style={[styles.newsTag, {backgroundColor: '#FF9800'}]}><ThemedText style={styles.tagText}>UPDATE</ThemedText></View>
-                        <View style={{flex: 1}}>
+                    <TouchableOpacity >
+                        <View style={[styles.newsTag, {backgroundColor: '#FF9800'}]}><ThemedText style={styles.tagText}>Update</ThemedText></View>
+                        <View >
                             <ThemedText style={styles.communityTitle}>Season 4 Rewards</ThemedText>
                             <ThemedText style={styles.communitySub}>Check your inventory for new skins.</ThemedText>
                         </View>
                     </TouchableOpacity>
-                            </ThemedCard>
+                </ThemedCard>
 
-                            <Spacer height={40} />
-                        </ScrollView>
+                <Spacer height={40} />
+            </ScrollView>
         </ThemedView>
     );
 }
@@ -230,7 +239,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         paddingBottom: 20,
     },
-    // welcome
     welcomeContainer: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -245,7 +253,6 @@ const styles = StyleSheet.create({
         fontWeight: '800',
         textTransform: 'uppercase',
     },
-    // status card
     cardTitle: {
         fontSize: 20,
         fontWeight: '800',
@@ -279,7 +286,6 @@ const styles = StyleSheet.create({
         opacity: 0.5,
         textTransform: 'uppercase'
     },
-    // --- MATCHMAKING ---
     categoryHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -310,5 +316,15 @@ const styles = StyleSheet.create({
     gameCardText: {
         color: 'white',
         fontWeight: '600',
+    },
+    gameText: {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        margin: 10
+    },
+    statusCard: {
+        display: 'flex',
+        flexDirection: 'column'
     }
 });

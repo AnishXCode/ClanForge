@@ -6,7 +6,6 @@ import ThemedText from './ThemedText';
 import ThemedCard from './ThemedCard';
 import ThemedLoader from './ThemedLoader'
 import { useUserData } from '../hooks/useUserData';
-import { useUser } from '../hooks/useUser';
 
 
 
@@ -62,11 +61,11 @@ const Friends = () => {
         })
         setAllFriends(newFriendList)
         if(response) {
-          Alert.alert(`Succesfully removed ${selectedFriend.name}`)
+          Alert.alert(`Succesfully removed ${selectedFriend.gamerTag}`)
         }
       } catch (error) {
         console.log('error removing friend: ', error)
-        Alert.alert(`Failed to remove ${selectedFriend.name}`, error.message)
+        Alert.alert(`Failed to remove ${selectedFriend.gamerTag}`, error.message)
       } finally {
         setSelectedFriend(null)
       }
@@ -105,10 +104,10 @@ const Friends = () => {
             <ThemedCard style={[styles.card, styles.friendsCard]} >
                {visibleFriends.map((friend, index) => (
                 
-                 <View key={friend.id}>
+                 <View key={friend.$id}>
                    <View style={styles.friendRow}>
                     <TouchableOpacity 
-                        key={friend.id} 
+                        key={friend.$id} 
                         onPress={() => setSelectedFriend(friend)}
                         activeOpacity={0.7}
                     >
@@ -116,7 +115,7 @@ const Friends = () => {
                          <Image source={Person} style={[styles.avatarSmall, styles.friendAvatarPlaceholder]} />
                          <View style={[
                            styles.statusDot, 
-                           { backgroundColor: friend.status.includes('ONLINE') ? Colours.success : Colours.warning,
+                           { backgroundColor: friend.status.includes('online') ? Colours.success : Colours.warning,
                             borderColor: theme.border
                            } 
                          ]} />
@@ -124,7 +123,7 @@ const Friends = () => {
                       </TouchableOpacity>
 
                       <View style={styles.friendInfo}>
-                          <ThemedText style={styles.friendName}>{friend.name}</ThemedText>
+                          <ThemedText style={styles.friendName}>{friend.gamerTag}</ThemedText>
                           <ThemedText style={styles.friendRank}>{friend.rank}</ThemedText>
                       </View>
 
@@ -134,19 +133,18 @@ const Friends = () => {
 
                       <TouchableOpacity style={[
                         styles.actionButton, 
-                        friend.action === 'SPECTATE' ? styles.btnSpectate : styles.btnInvite,
-                        { backgroundColor: friend.status === 'ONLINE' || friend.action === 'SPECTATE' ? Colours.success : "#BCCCDC" },
+                        friend.status === 'ingame' ? styles.btnSpectate : styles.btnInvite,
+                        { backgroundColor: friend.status === 'online' || friend.status === 'ingame' ? Colours.success : "#BCCCDC" },
                       ]}>
-                          <ThemedText style={styles.actionButtonText}>{friend.action}</ThemedText>
+                          <ThemedText style={styles.actionButtonText}>{friend.status === 'online' ? "Online" : "Ingame"}</ThemedText>
                       </TouchableOpacity>
                    </View>
                    {index < allFriends.length - 1 && <View style={[styles.divider, { backgroundColor: theme.border }]} />}
                  </View>
                ))}
                { visibleCount < allFriends.length ? <TouchableOpacity onPress={handleSeeMore} style={styles.seeMoreBtn}>
-                  <ThemedText style={styles.seeMoreText}>SEE MORE</ThemedText>
+                  <ThemedText style={styles.seeMoreText}>See More</ThemedText>
                </TouchableOpacity> : <></>}
-
             </ThemedCard>
 
             <Modal 
@@ -178,11 +176,11 @@ export default Friends
 
 const styles = StyleSheet.create({
     sectionTitle: {
-        fontSize: 20,
-        fontWeight: '800',
-        marginBottom: 15,
-        marginLeft: 5,
-        textTransform: 'uppercase',
+      fontSize: 20,
+      fontWeight: '800',
+      marginBottom: 15,
+      marginLeft: 5,
+      textTransform: 'uppercase',
     },
     friendsCard: {
       paddingVertical: 15,

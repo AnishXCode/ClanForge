@@ -1,13 +1,13 @@
 import { createContext, useState } from "react";
 import { databases, appwriteConfig } from "../lib/appwrite";
-import { Permission, Role } from "react-native-appwrite";
+import { Permission, Query, Role } from "react-native-appwrite";
 import { useUser } from "../hooks/useUser";
 
 export const UserDataContext = createContext()
 
 export function UserDataProvider({ children }) {
-    const {user} = useUser()
-    const [users, setUsers] = useState(null)
+    const { user } = useUser()
+    const [ users, setUsers] = useState([])
     const [userData, setUserData] = useState(null)
 
     let [localData, setLocalData] = useState({
@@ -15,16 +15,18 @@ export function UserDataProvider({ children }) {
         avatar: ''
     })
 
-    async function fetchUsers(queries) {
+    async function fetchUsers() {
         try {
             const allusers = await databases.listRows({
                 databaseId: appwriteConfig.DATABASE_ID,
                 tableId: appwriteConfig.TABLE_ID,
-                ...queries
+                queries: [
+                    Query.notContains('$id', user.$id)
+                ]
             })
-            setUsers(allusers)
+            setUsers(allusers.rows)
         } catch( error) {
-            console.log(error.message)
+            console.log("error", error.message)
         }
     }
 
@@ -91,7 +93,7 @@ export function UserDataProvider({ children }) {
     }
 
     return (
-        <UserDataContext.Provider value={{ userData, fetchUserDataByID, fetchUsers, createUser, updateUserData, updateDataLocal, localData }}>
+        <UserDataContext.Provider value={{ userData, fetchUserDataByID, fetchUsers, createUser, updateUserData, updateDataLocal, localData, users }}>
             {children}
         </UserDataContext.Provider>
     )

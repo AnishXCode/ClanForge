@@ -36,18 +36,30 @@ const Lobby = () => {
   const [lobbyData, setLobbyData] = useState(null);
   const [isDisabled, setIsDisabled] = useState(true);
   const [hasFinishedLocally , setHasFinishedLocally] = useState(false);
+  const [userScore, setUserScore] = useState(0);
 
   const router = useRouter();
   const colourScheme = useColorScheme();
   const theme = Colours[colourScheme] ?? Colours.light;
   const isSubmittingRef = useRef(false);
 
+  const [generatedURL] = useState(() => {
+    const timestamp = new Date().getTime();
+    const seperator = game_url.includes('?') ? '&' : '?';
+    return `${game_url}${seperator}ts=${timestamp}`
+  })
+
   useEffect(() => {
+    if(isSubmittingRef.current){
+      return;
+    }
+
     let isMounted = true;
 
     if(!gameId || !user){
       return;
     }
+
     const findLobby = async () => {
       try {
       const activeGame = await fetchGameInLobby(gameId);
@@ -145,24 +157,6 @@ const Lobby = () => {
 
   },[lobbyData?.$id])
 
-  const clearGameStorage = `
-    (function() {
-    try {
-      window.localStorage.clear();
-      window.sessionStorage.clear();
-      
-      var cookies = document.cookie.split(";");
-      for (var i = 0; i < cookies.length; i++) {
-        var cookie = cookies[i];
-        var eqPos = cookie.indexOf("=");
-        var name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
-        document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
-      }
-    } catch(e) {}
-  })();
-  true;
-  `;
-
   const injectedJavaScript = `
    (function() {
    try {
@@ -214,16 +208,29 @@ const Lobby = () => {
           }));
         }
       
-      } catch (innerError) {
+      } catch (loopError) {
         window.ReactNativeWebView.postMessage(JSON.stringify({
           type: 'ERROR',
-          message: 'Loop Error: ' + innerError.message
+          message: 'Loop Error: ' + loopError.message
         }));
       }
     }
     setInterval(checkGameState, 1000);
 
-    } catch (serverError) {
+    try {
+      window.localStorage.clear();
+      window.sessionStorage.clear();
+
+      var cookies = document.cookie.split(";");
+      for (var i = 0; i < cookies.length; i++) {
+        var cookie = cookies[i];
+        var eqPos = cookie.indexOf("=");
+        var name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+        document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
+      }
+    } catch(e) {}
+
+    } catch (setupError) {
         window.ReactNativeWebView.postMessage(JSON.stringify({
           type: 'ERROR',
           message: 'Setup Error: ' + setupError.message
@@ -249,6 +256,7 @@ const Lobby = () => {
 
         if(isGameOver && !hasFinishedLocally && !isSubmittingRef.current) {
           isSubmittingRef.current = true;
+          setUserScore(score);
           setHasFinishedLocally(true);
           Alert.alert("Game Over", `Final Score: ${score}`);
 
@@ -353,14 +361,14 @@ const Lobby = () => {
 
       {matchStatus === "playing" && !hasFinishedLocally && (
         <WebView
-          source={{ uri: `${game_url}?ts=${new Date().getTime()}` }}
+          source={{ uri: generatedURL }}
           style={styles.webview}
           javaScriptEnabled={true}
           onMessage={handleWebViewMessage}
-          injectedJavaScriptBeforeContentLoaded={clearGameStorage}
-          injectedJavaScript={injectedJavaScript}
+          injectedJavaScriptBeforeContentLoaded={injectedJavaScript}
           incognito={true}
           cacheEnabled={false}
+          startInLoadingState={true}
         />
       )}
 
@@ -370,7 +378,7 @@ const Lobby = () => {
             <Spacer height={20} />
             <ThemedText title={true} style={{ fontSize: 22, fontWeight: 700 }}>Game Finished!</ThemedText>
             <Spacer height={20} />
-            <ThemedText>Your Score: {JSON.parse(lobbyData?.gameState || '{}')[user.$id]}</ThemedText> 
+            <ThemedText>Your Score: {userScore}</ThemedText> 
             <Spacer height={10} />
             <ThemedText style={{ opacity: 0.7 }}>Waiting for opponent to complete his game...</ThemedText>
         </View>
@@ -389,11 +397,10 @@ const Lobby = () => {
             <ThemedCard style={styles.scoreCard}>
                 <ThemedText title={true} style={{ textAlign: 'center', fontSize: 20, fontWeight: 600 }}>FINAL SCORES</ThemedText>
                 {lobbyData.currentPlayers.map((player) => {
-                    const playerScore = 0;
                     return (
                         <View key={player} style={styles.scoreRow}>
                             <ThemedText style={{ fontSize: 16, fontWeight: 500 }}>{player === user.$id ? "You" : `${player}`}</ThemedText>
-                            <ThemedText style={{ fontSize: 16, fontWeight: 500 }}>{playerScore}</ThemedText>
+                            <ThemedText style={{ fontSize: 16, fontWeight: 500 }}>{player === user.$id ? userScore : JSON.parse(lobbyData?.gameState)[player]}</ThemedText>
                         </View>
                     );
                 })}

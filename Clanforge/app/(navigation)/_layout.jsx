@@ -1,4 +1,4 @@
-import { Tabs, useRouter } from 'expo-router'
+import { Slot, Tabs, useRouter } from 'expo-router'
 import { StyleSheet, useColorScheme, View, TouchableOpacity } from 'react-native'
 import { Colours } from '../../constants/colours'
 
@@ -7,8 +7,9 @@ import UserOnly from '../../components/auth/userOnly';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ThemedLogo from '../../components/ThemedLogo';
 import ThemedText from '../../components/ThemedText';
+import ThemedButton from '../../components/ThemedButton';
 
-const DashboardLayout = () => {
+const NavLayout = () => {
     const colourScheme = useColorScheme()
     const theme = Colours[colourScheme] ?? Colours.light
     const router = useRouter()
@@ -16,7 +17,11 @@ const DashboardLayout = () => {
     const insets = useSafeAreaInsets()
 
     const handleClick = (ref) => {
-      router.push(`/(navigation)/${ref}`)
+      router.replace(`/(navigation)/${ref}`)
+    }
+
+    const handleBack = () => {
+      router.replace('/(dashboard)/dashboard')
     }
 
   return (
@@ -40,45 +45,16 @@ const DashboardLayout = () => {
             </View>
         </View>
     </View>
-
-    <Tabs 
-        screenOptions={{ headerShown: false, tabBarStyle: {
-                backgroundColor: theme.navBackground,
-                paddingTop: 10,
-                height: 90
-        },
-    tabBarActiveTintColor: theme.iconColourFocused,
-    tabBarInactiveTintColor: theme.iconColour
-    }} >
-    <Tabs.Screen name='profile' options={{ title: '', tabBarIcon: ({ focused }) => (
-        <Ionicons 
-        size={24}
-        name= {focused ? 'person' : 'person-outline' }
-        color={focused ? theme.iconColourFocused : theme.iconColour}
-        />
-    )}} />   
-    <Tabs.Screen name='dashboard' options={{ title: '' , tabBarIcon: ({ focused }) => (
-        <Ionicons 
-        size={24}
-        name= {focused ? 'home' : 'home-outline' }
-        color={focused ? theme.iconColourFocused : theme.iconColour}
-        />
-    )}}
-    
-    />   
-    <Tabs.Screen name='leaderboard' options={{ title: '' , tabBarIcon: ({ focused }) => (
-        <Ionicons 
-        size={24}
-        name= {focused ? 'bar-chart' : 'bar-chart-outline' }
-        color={focused ? theme.iconColourFocused : theme.iconColour}
-        />
-    )}} />   
-    </Tabs>
+    <ThemedButton onPress={() => {handleBack()}} style={styles.back}>
+      <Ionicons  name='arrow-back' size={20} style={{ marginRight: 10 }}/>
+      <ThemedText title={true} style={styles.backText}>Back To Dashboard</ThemedText>
+    </ThemedButton>
+    <Slot />
     </UserOnly>
   )
 }
 
-export default DashboardLayout
+export default NavLayout
 
 const styles = StyleSheet.create({
     headerContainer: {
@@ -114,4 +90,15 @@ const styles = StyleSheet.create({
       fontSize: 9,
       fontWeight: 'bold',
     },
+    back: {
+      display: 'flex',
+      flexDirection: 'row',
+      width: '46%',
+      marginHorizontal: 20,
+      padding: 10
+    },
+    backText: {
+      fontWeight: 600,
+      fontSize: 15
+    }
 })
