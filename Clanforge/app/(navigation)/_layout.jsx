@@ -1,4 +1,4 @@
-import { Slot, Tabs, useRouter } from 'expo-router'
+import { Slot, Tabs, useNavigation, useRouter } from 'expo-router'
 import { StyleSheet, useColorScheme, View, TouchableOpacity } from 'react-native'
 import { Colours } from '../../constants/colours'
 
@@ -8,6 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ThemedLogo from '../../components/ThemedLogo';
 import ThemedText from '../../components/ThemedText';
 import ThemedButton from '../../components/ThemedButton';
+import useNotifications from '../../hooks/useNotifications';
 
 const NavLayout = () => {
     const colourScheme = useColorScheme()
@@ -15,6 +16,8 @@ const NavLayout = () => {
     const router = useRouter()
 
     const insets = useSafeAreaInsets()
+
+    const { unreadCount } = useNotifications()
 
     const handleClick = (ref) => {
       router.replace(`/(navigation)/${ref}`)
@@ -33,22 +36,24 @@ const NavLayout = () => {
                 <TouchableOpacity onPress={() => {handleClick("notifications")}}>
                   <Ionicons name="notifications" size={26} color={theme.text} style={styles.icon} />
                   <View style={[styles.badge, {borderColor: theme.border}]}>
-                    <ThemedText style={styles.badgeText}>2</ThemedText>
+                    <ThemedText style={styles.badgeText}>{!unreadCount ? 0 : unreadCount}</ThemedText>
                   </View>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => {handleClick("addfriends")}} style={styles.friendIconWrapper}>
                   <FontAwesome5 name="user-friends" size={22} color={theme.text} style={styles.icon} />
-                  <View style={[styles.badge, {borderColor: theme.border}]}>
+                  {/* <View style={[styles.badge, {borderColor: theme.border}]}>
                     <ThemedText style={styles.badgeText}>1</ThemedText>
-                  </View>
+                  </View> */}
                 </TouchableOpacity>
             </View>
         </View>
     </View>
+    <View style={{backgroundColor: theme.background}}>
     <ThemedButton onPress={() => {handleBack()}} style={styles.back}>
-      <Ionicons  name='arrow-back' size={20} style={{ marginRight: 10 }}/>
-      <ThemedText title={true} style={styles.backText}>Back To Dashboard</ThemedText>
+      <Ionicons  name='arrow-back' size={20} style={{ marginRight: 10, color: '#000' }}/>
+      <ThemedText button={true} style={styles.backText}>Back To Dashboard</ThemedText>
     </ThemedButton>
+    </View>
     <Slot />
     </UserOnly>
   )

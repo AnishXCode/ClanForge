@@ -10,7 +10,8 @@ export const appwriteConfig ={
         TABLE_ID: "users",
         BUCKET_ID: "694e89ee0001c7a5501a",
         GAMES_TABLE_ID: "games",
-        LOBBY_TABLE_ID: "lobby"
+        LOBBY_TABLE_ID: "lobby",
+        REQUEST_TABLE_ID: "requests"
 }
 
 

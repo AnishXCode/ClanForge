@@ -95,6 +95,7 @@ const Lobby = () => {
 
         if(isMounted){
             setLobbyData(updatedMatch);
+            Alert.alert("Game Found to join, joining match!")
         }
 
       } else {
@@ -115,8 +116,9 @@ const Lobby = () => {
 
         if(isMounted){
             setLobbyData(newMatch);
+            Alert.alert("New match created, waiting for players to join!")
         }
-      }
+      } 
     } catch (error) {
       console.error("Matchmaking failed:", error);
       router.replace('/(dashboard)/dashboard');
@@ -152,6 +154,7 @@ const Lobby = () => {
     })
 
     return () => {
+      setLobbyData(null)
       unsubscribe();
     };
 
@@ -266,14 +269,9 @@ const Lobby = () => {
             rowId: lobbyData.$id
           })
 
-          console.log("FreshData: ", freshData)
-
           const currentScores = JSON.parse(freshData.gameState || '{}');
-          console.log("currentScore: ", currentScores)
           const newScores = {...currentScores, [user.$id]: score }
-          console.log("New Scores", newScores)
           const allPlayersFinished = Object.keys(newScores).length >= freshData.currentPlayers.length
-          console.log(allPlayersFinished)
 
           let winnerId = null;
 
@@ -351,7 +349,7 @@ const Lobby = () => {
 
           {lobbyData.hostUserId === user.$id ? (
                 <ThemedButton onPress={handleStartGame} disabled={isDisabled}>
-                <ThemedText title={true}>START GAME</ThemedText>
+                <ThemedText button={true}>START GAME</ThemedText>
                 </ThemedButton>
            ) : (
                 <ThemedText>Waiting for host to start...</ThemedText>
@@ -409,7 +407,7 @@ const Lobby = () => {
             <Spacer height={30} />
             
             <ThemedButton onPress={() => router.replace('/dashboard')}>
-                <ThemedText title={true}>BACK TO DASHBOARD</ThemedText>
+                <ThemedText button={true}>BACK TO DASHBOARD</ThemedText>
             </ThemedButton>
           </View>
       )}

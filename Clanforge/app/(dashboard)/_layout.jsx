@@ -7,11 +7,14 @@ import UserOnly from '../../components/auth/userOnly';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ThemedLogo from '../../components/ThemedLogo';
 import ThemedText from '../../components/ThemedText';
+import useNotifications from '../../hooks/useNotifications';
 
 const DashboardLayout = () => {
     const colourScheme = useColorScheme()
     const theme = Colours[colourScheme] ?? Colours.light
     const router = useRouter()
+
+    const { unreadCount } = useNotifications()
 
     const insets = useSafeAreaInsets()
 
@@ -28,14 +31,14 @@ const DashboardLayout = () => {
                 <TouchableOpacity onPress={() => {handleClick("notifications")}}>
                   <Ionicons name="notifications" size={26} color={theme.text} style={styles.icon} />
                   <View style={[styles.badge, {borderColor: theme.border}]}>
-                    <ThemedText style={styles.badgeText}>2</ThemedText>
+                    <ThemedText style={styles.badgeText}>{!unreadCount ? 0 : unreadCount}</ThemedText>
                   </View>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => {handleClick("addfriends")}} style={styles.friendIconWrapper}>
                   <FontAwesome5 name="user-friends" size={22} color={theme.text} style={styles.icon} />
-                  <View style={[styles.badge, {borderColor: theme.border}]}>
+                  {/* <View style={[styles.badge, {borderColor: theme.border}]}>
                     <ThemedText style={styles.badgeText}>1</ThemedText>
-                  </View>
+                  </View> */}
                 </TouchableOpacity>
             </View>
         </View>

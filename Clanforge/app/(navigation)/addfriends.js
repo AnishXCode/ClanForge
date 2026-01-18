@@ -9,11 +9,11 @@ import { Colours } from '../../constants/colours'
 import ThemedLoader from '../../components/ThemedLoader'
 import Friends from '../../components/friends'
 import ThemedSearchBar from '../../components/SearchBar'
-import { appwriteConfig, databases } from '../../lib/appwrite'
-import { enableFreeze } from 'react-native-screens'
+import useNotifications from '../../hooks/useNotifications'
 
 const AddFriends = () => {
-  const { users, userData, fetchUserDataByID } = useUserData()
+  const { users, userData } = useUserData()
+  const { sendRequest } = useNotifications()
   const [notAddedFriends, setNotAddedFriends] = useState([])
   const [visibleCards, setVisibleCards] = useState(6)
 
@@ -46,29 +46,22 @@ const AddFriends = () => {
         return;
       }
 
-      const newFriendList = [...existing, {
-        $id: data.$id,
-        gamerTag: data.gamerTag,
-        rank: data.rank,
-        avatar: data.avatar,
-        status: data.isActive
-      }]
-      console.log(newFriendList, "newFriendList")
+      const update = {
+        userId: data.$id,
+        isRead: false,
+        type: "FRIEND_REQUEST",
+        payload: JSON.stringify({
+          message: `${userData.$id} wants you add you as friend. Do you want to accept?`,
+          requestedUserId: userData.$id,
+          userName: userData.gamerTag,
+          userRank: userData.rank,
+          userAvatar: userData.avatar,
+          userStatus: userData.isActive
+        })
+      }
 
-      const res = await databases.updateRow({
-        databaseId: appwriteConfig.DATABASE_ID,
-        tableId: appwriteConfig.TABLE_ID,
-        rowId: userData.$id,
-        data: {
-          friends: JSON.stringify(newFriendList)
-        }
-      })
-
-      console.log(res, "User Added")
-      fetchUserDataByID(userData.$id)
-      const updatedList = notAddedFriends.filter(user => user.$id !== data.$id)
-      setNotAddedFriends(updatedList);
-      Alert.alert(`Successfully added ${data.gamerTag} as friend`)
+      sendRequest(update)
+      Alert.alert(`Successfully sent friend request to ${data.gamerTag}`)
     } catch (error) {
       Alert.alert(`Failed to add ${data.gamerTag}: `, error.message)
     }
@@ -82,8 +75,9 @@ const AddFriends = () => {
   }
 
   const generateFriendsCard = (item) =>{
-    console.log(item)
+    console.log(item, "item")
     const data = item.item
+    console.log(data, "data")
     return (
       <ThemedCard style={styles.card}>
         <View style={styles.cardHeader}>

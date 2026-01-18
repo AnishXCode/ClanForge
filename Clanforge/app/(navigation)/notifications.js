@@ -1,82 +1,93 @@
-import { StyleSheet, View, TouchableOpacity, FlatList } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import { StyleSheet, FlatList, TouchableOpacity, View, ActivityIndicator } from 'react-native'
+import React, { useState } from 'react'
 import ThemedView from '../../components/ThemedView'
 import ThemedCard from '../../components/ThemedCard'
 import ThemedText from '../../components/ThemedText'
-import Person from '../../assets/person.png'
-import { useUserData } from '../../hooks/useUserData'
+import useNotifications from '../../hooks/useNotifications'
 import { Colours } from '../../constants/colours'
+import Spacer from '../../components/Spacer'
+import { useRouter } from 'expo-router'
 
 const Notifications = () => {
+  const router = useRouter();
 
-  const { users, userData } = useUserData()
-  const [notAddedFriends, setNotAddedFriends] = useState([])
+  const { notifications, loading, markAsRead } = useNotifications()
 
-//   useEffect(() => {
-//     if(!userData || !users) return;
+  const handleNotifClick = async ( item ) => {
+    try {
+      if(!item.isRead) {
+        await markAsRead(item.$id)
+      }
 
-//     const allfriends = userData?.friends || [];
+      router.push({
+        pathname: "/(navigation)/[id]", 
+        params: { 
+            id: item.$id,
+            type: item.type,
+            payload: item.payload
+        } 
+    })
+    } catch (error) {
+      console.log("error: ", error)
+    }
+  }
 
-//     const filteredUsers = users.map(friend => {
-      
-//       const isAlreadyFriend = allfriends.includes(friend.$id)
 
-//       const currentUser = friend.$id === userData.$id
-
-//       return !isAlreadyFriend && !currentUser;
-//     })
-
-//     console.log(filteredUsers)
-
-//     setNotAddedFriends(filteredUsers)
-
-//   },[userData?.friends, users])
-
-  const generateFriendsCard = ({ item }) =>{
+  const renderNotificationItem = ({ item }) => {
+    const renderPayload = JSON.parse(item.payload)
     return (
-      <ThemedCard>
-        <View style={styles.avatarContainer}>
-          {avatarUrl ? (
-          <Image source={{ uri: avatarUrl }} style={styles.avatarLarge} />
-          ) : (
-          <Image source={Person} style={styles.avatarLarge}/>
-          )}
+      <TouchableOpacity onPress={() => handleNotifClick(item)} activeOpacity={0.9}>
+        <ThemedCard style={[styles.card, !item.isRead && styles.unreadCard]}>
+            <View style={styles.headerRow}>
+                <ThemedText title={true} style={[styles.notificationTitle, !item.isRead && {color: '#000'}]}>{item.type.replace('_', ' ')}</ThemedText>
+                {!item.isRead && <View style={styles.dot} />}
+            </View>
+            <ThemedText style={[styles.notificationMessage, {color: '#fff'}, !item.isRead && {color: '#000'}]}>{renderPayload.message}</ThemedText>
+            
+            {item.type === 'MATCH_INVITE' && (
+                <ThemedText style={[styles.actionText, !item.isRead && {color: '#000'}]}>TAP TO JOIN LOBBY</ThemedText>
+            )}
 
-          <ThemedText title={true} >{item.gamerTag}</ThemedText>
-          <ThemedText>{item.rank}</ThemedText>
-        </View>
-        <View style={styles.buttons}>
-           <TouchableOpacity style={[
-            styles.actionButton, 
-            { backgroundColor: Colours.warning },
-            ]}>
-              <ThemedText style={[styles.actionButtonText, {color: '#fff'}]}>Report</ThemedText>
-          </TouchableOpacity>
+            {item.type === 'FRIEND_REQUEST' && (
+                <ThemedText style={[styles.actionText, !item.isRead && {color: '#000'}]}>Accept Request</ThemedText>
+            )}
+        </ThemedCard> 
+      </TouchableOpacity>
+    );
+  };
 
-          <TouchableOpacity style={[
-            styles.actionButton, 
-            { backgroundColor: Colours.success },
-            ]}>
-              <ThemedText style={styles.actionButtonText}>Add</ThemedText>
-          </TouchableOpacity>
-        </View>
-      </ThemedCard>
+  if (loading) {
+    return (
+      <ThemedView safe={true} style={styles.container}>
+        <ThemedText title={true} style={styles.title}>Notifications</ThemedText>
+        <Spacer height={60} />
+        <ActivityIndicator size={'large'}/>
+    </ThemedView>
     )
   }
-  return (
-    <ThemedView safe={true} >
-        <ThemedText title={true} style={styles.title}>Add Friends</ThemedText>
-          {/* SearchBar code */}
-        {/* <FlatList
-          data={[...notAddedFriends]}
-          renderItem={generateFriendsCard}
-          keyExtractor={(item) => item}
-          numColumns={2}
-          columnWrapperStyle={styles.row}
-          showsVerticalScrollIndicator={false}
-          scrollEnabled={false}
-        /> */}
 
+  if (!notifications[0] && !loading) {
+    return (
+      <ThemedView safe={true} style={styles.container}>
+        <ThemedText title={true} style={styles.title}>Notifications</ThemedText>
+        <Spacer height={60} />
+        <View style={styles.text}> 
+        <ThemedText>No Notifications for you!</ThemedText>
+        </View>
+    </ThemedView>
+    )
+  }
+
+  return (
+    <ThemedView safe={true} style={styles.container}>
+        <ThemedText title={true} style={styles.title}>Notifications</ThemedText>
+        <FlatList
+          data={notifications}
+          keyExtractor={(item) => item.$id}
+          renderItem={renderNotificationItem}
+          contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
+        />
     </ThemedView>
   )
 }
@@ -84,45 +95,48 @@ const Notifications = () => {
 export default Notifications
 
 const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      paddingHorizontal: 20, 
+    },
     title: {
         fontSize: 26,
         fontWeight: '700',
-        textTransform: 'uppercase'
+        textTransform: 'uppercase',
+        marginTop: 20, 
+        marginBottom: 20,
     },
-    avatarContainer: {
-      display: 'flex',
-      flexDirection: 'row',
-      marginRight: 25,
+    listContent: {
+      paddingBottom: 20, 
     },
-    avatarLarge: {
-      width: 50,
-      height: 50,
-      borderRadius: 30,
-      backgroundColor: Colours.primary,
-      border: 2,
-      borderColor: "#000"
+    card: {
+      padding: 20, 
+      marginBottom: 15,
+      borderRadius: 16,
+      justifyContent: 'center', 
     },
-    buttons: {
-      display: 'flex',
-      flexDirection: 'row',
-      width: '90%',
-      gap: 10,
+    notificationTitle: {
+      fontSize: 18,
+      fontWeight: '600',
+      marginBottom: 8,
     },
-    actionButton: {
-      paddingVertical: 6,
-      paddingHorizontal: 12,
-      borderRadius: 6,
-      alignItems: 'center',
+    notificationMessage: {
+      fontSize: 14,
     },
-    actionButtonText: {
-      fontSize: 11,
-      fontWeight: '700',
-      color: Colours.primaryTextColour,
-      textTransform: 'uppercase',
+    unreadCard: { 
+        backgroundColor: Colours.primary
     },
-    row: {
-    justifyContent: 'space-between',
-    gap: 10,
-    marginBottom: 20
-  },
+    headerRow: { 
+      flexDirection: 'row', 
+      justifyContent: 'space-between', 
+      alignItems: 'center', 
+      marginBottom: 8 
+    },
+    actionText: {
+      color: '#fff'
+    },
+    text: {
+      justifyContent: 'center',
+      alignItems: 'center'
+    }
 })

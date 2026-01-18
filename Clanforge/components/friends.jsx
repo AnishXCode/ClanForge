@@ -6,6 +6,7 @@ import ThemedText from './ThemedText';
 import ThemedCard from './ThemedCard';
 import ThemedLoader from './ThemedLoader'
 import { useUserData } from '../hooks/useUserData';
+import useNotifications from '../hooks/useNotifications';
 
 
 
@@ -21,10 +22,12 @@ const Friends = () => {
       { id: 5, name: 'PLAYER 3', rank: 'SILVER 1', status: 'INGAME', action: 'SPECTATE' },
     ]);
 
-    const [allFriends, setAllFriends] = useState(null)
+    const [allFriends, setAllFriends] = useState(null) 
+    const { sendRequest } = useNotifications();
 
     useEffect(() => {
       if(userData?.friends){
+        console.log(userData.friends, "friends")
         const friends = JSON.parse(userData.friends)
         setAllFriends(friends)
         console.log(friends)
@@ -75,6 +78,21 @@ const Friends = () => {
         setVisibleCount(prevCount => prevCount + 3)
     }
 
+    const handleInvite = (friend) => {
+      const data = {
+        userId: friend.$id,
+        isRead: false,
+        type: "MATCH_REQUEST",
+        payload: JSON.stringify({
+          requestUserId: userData.$id,
+          userName: userData.gamerTag,
+          userRank: userData.rank,
+          userAvatar: userData.avatar,
+        })
+      }
+      sendRequest(data);
+    }
+
     if(allFriends === null) {
       return(
         <>
@@ -100,7 +118,7 @@ const Friends = () => {
     const visibleFriends = allFriends.slice(0, visibleCount);
   return (
     <>
-    <ThemedText title={true} style={styles.sectionTitle}>friends</ThemedText>
+    <ThemedText title={true} style={styles.sectionTitle}>Friends</ThemedText>
             <ThemedCard style={[styles.card, styles.friendsCard]} >
                {visibleFriends.map((friend, index) => (
                 
@@ -111,11 +129,11 @@ const Friends = () => {
                         onPress={() => setSelectedFriend(friend)}
                         activeOpacity={0.7}
                     >
-                      <View style={styles.friendAvatarContainer}>
+                        <View style={styles.friendAvatarContainer}>
                          <Image source={Person} style={[styles.avatarSmall, styles.friendAvatarPlaceholder]} />
                          <View style={[
                            styles.statusDot, 
-                           { backgroundColor: friend.status.includes('online') ? Colours.success : Colours.warning,
+                           { backgroundColor: friend.status?.includes('online') ? Colours.success : Colours.warning,
                             borderColor: theme.border
                            } 
                          ]} />
@@ -126,18 +144,19 @@ const Friends = () => {
                           <ThemedText style={styles.friendName}>{friend.gamerTag}</ThemedText>
                           <ThemedText style={styles.friendRank}>{friend.rank}</ThemedText>
                       </View>
+                        <>
+                          <View style={styles.friendStatusBlock}>
+                            <ThemedText style={styles.friendStatusText}>{friend.status ? friend.status : "Offline"}</ThemedText>
+                          </View>
 
-                      <View style={styles.friendStatusBlock}>
-                        <ThemedText style={styles.friendStatusText}>{friend.status}</ThemedText>
-                      </View>
-
-                      <TouchableOpacity style={[
-                        styles.actionButton, 
-                        friend.status === 'ingame' ? styles.btnSpectate : styles.btnInvite,
-                        { backgroundColor: friend.status === 'online' || friend.status === 'ingame' ? Colours.success : "#BCCCDC" },
-                      ]}>
-                          <ThemedText style={styles.actionButtonText}>{friend.status === 'online' ? "Online" : "Ingame"}</ThemedText>
-                      </TouchableOpacity>
+                          <TouchableOpacity onPress={() => {handleInvite(friend)}} style={[
+                            styles.actionButton, 
+                            friend.status === 'ingame' ? styles.btnSpectate : styles.btnInvite,
+                            { backgroundColor: friend.status === 'online' || friend.status === 'ingame' ? "#BCCCDC" : Colours.success },
+                          ]}>
+                              <ThemedText style={styles.actionButtonText}>{friend.status === 'online' ? "Online" : "Invite"}</ThemedText>
+                          </TouchableOpacity>
+                          </>
                    </View>
                    {index < allFriends.length - 1 && <View style={[styles.divider, { backgroundColor: theme.border }]} />}
                  </View>
