@@ -38,6 +38,7 @@ const AddFriends = () => {
 
   const handleAddFriend = async (data) => {
     try {
+      console.log(data, "data")
       const existing = JSON.parse(userData.friends || '[]');
       const alreadyFriend = existing.filter(user => user.$id === data.$id)
       
@@ -51,7 +52,7 @@ const AddFriends = () => {
         isRead: false,
         type: "FRIEND_REQUEST",
         payload: JSON.stringify({
-          message: `${userData.$id} wants you add you as friend. Do you want to accept?`,
+          message: `${userData.gamerTag} wants you add you as friend. Do you want to accept?`,
           requestedUserId: userData.$id,
           userName: userData.gamerTag,
           userRank: userData.rank,
@@ -75,9 +76,7 @@ const AddFriends = () => {
   }
 
   const generateFriendsCard = (item) =>{
-    console.log(item, "item")
     const data = item.item
-    console.log(data, "data")
     return (
       <ThemedCard style={styles.card}>
         <View style={styles.cardHeader}>

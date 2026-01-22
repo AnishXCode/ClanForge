@@ -13,11 +13,13 @@ import { Colours } from '../../constants/colours'
 import { databases, appwriteConfig } from '../../lib/appwrite'; 
 import { ID } from 'react-native-appwrite';
 import { useUser } from '../../hooks/useUser';
+import { useUserData } from '../../hooks/useUserData';
 
 const NotificationPage = () => {
     const params = useLocalSearchParams();
     const router = useRouter();
     const { user } = useUser()
+    const { userData } = useUserData()
 
     const { id, type, payload } = params;
     const parsedPayload = payload ? JSON.parse(payload) : {};
@@ -31,12 +33,12 @@ const NotificationPage = () => {
         setLoading(true);
         try {
             if (type === 'MATCH_INVITE') {
-                console.log("Joining Lobby:", parsedPayload.lobbyId);
+                console.log("Joining Squad:", parsedPayload.lobbyId);
                 router.replace({ pathname: "/(game)/[id]", params: { id: parsedPayload.lobbyId }});
             } 
             else if (type === 'FRIEND_REQUEST') {
                 try {
-                    const existing = JSON.parse(user.friends || '[]');
+                    const existing = JSON.parse(userData.friends || '[]');
 
                     await databases.createRow({
                         databaseId: appwriteConfig.DATABASE_ID,
@@ -47,13 +49,13 @@ const NotificationPage = () => {
                             isRead: false,
                             type: "FRIEND_ACCEPT",
                             payload: JSON.stringify({
-                                userId: user.$id,
-                                userName: user.gamerTag,
-                                userRank: user.rank,
-                                userAvatar: user.avatar,
+                                userId: userData.$id,
+                                userName: userData.gamerTag,
+                                userRank: userData.rank,
+                                userAvatar: userData.avatar,
                                 status: "success",
                                 message: "Friend Request accepted!",
-                                userStatus: user.isActive
+                                userStatus: userData.isActive
                             })
                         }
                     })
@@ -65,6 +67,8 @@ const NotificationPage = () => {
                         avatar: parsedPayload.userAvatar,
                         status: parsedPayload.isActive
                     }]
+
+                    console.log(newFriendList, "newFriend List")
                     
                     await databases.updateRow({
                         databaseId: appwriteConfig.DATABASE_ID,
@@ -75,13 +79,13 @@ const NotificationPage = () => {
                         }
                     })
 
+                    console.log("Accepting Friend:", parsedPayload.senderId);
+                    Alert.alert("Success", "Friend Request Accepted!");
+
                     await handleDelete();
                 } catch (error) {
                     console.error(error, "error")
                 }
-                console.log("Accepting Friend:", parsedPayload.senderId);
-                Alert.alert("Success", "Friend Request Accepted!");
-                await handleDelete();   
             }
         } catch (e) {
             Alert.alert("Error", e.message);
@@ -142,6 +146,7 @@ const NotificationPage = () => {
     }
 
     const handleAddFriend = async (data) => {
+        console.log(data, "data")
         const existing = JSON.parse(user.friends || '[]');
         const newFriendList = [...existing, {
             $id: data.userId,

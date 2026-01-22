@@ -36,6 +36,8 @@ const login = () => {
       await login(email, password)
     } catch (error) {
       setError(error.message)
+    } finally {
+      setLoading(false)
     }
   }
   

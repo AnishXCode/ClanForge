@@ -9,8 +9,6 @@ const useNotifications = () => {
     const [unreadCount, setUnreadCount] = useState(0);
     const [loading, setLoading] = useState(true);
 
-    console.log("unreadd", unreadCount)
-
     const getNotifications = async () => {
         if (!user) return;
         try {
@@ -25,7 +23,7 @@ const useNotifications = () => {
             setNotifications(res.rows)
             setUnreadCount(res.rows.filter(req => !req.isRead).length)
         } catch (error) {
-            console.log("Error fetching notifications: ", error)
+            console.error("Error fetching notifications: ", error)
         } finally {
             setLoading(false)
         }
@@ -42,9 +40,7 @@ const useNotifications = () => {
         if(!user) return;
 
         const channel = `databases.${appwriteConfig.DATABASE_ID}.tables.${appwriteConfig.REQUEST_TABLE_ID}.rows`
-        console.log(channel)
         const unsubscribe = client.subscribe(channel, res => {
-            console.log("in the unsubscrie: ", res)
             if (res.payload.userId === user.$id) {
                 getNotifications();
             }   

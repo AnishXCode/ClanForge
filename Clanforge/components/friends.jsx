@@ -27,10 +27,8 @@ const Friends = () => {
 
     useEffect(() => {
       if(userData?.friends){
-        console.log(userData.friends, "friends")
         const friends = JSON.parse(userData.friends)
         setAllFriends(friends)
-        console.log(friends)
       } else {
         setAllFriends([])
       }
@@ -67,7 +65,7 @@ const Friends = () => {
           Alert.alert(`Succesfully removed ${selectedFriend.gamerTag}`)
         }
       } catch (error) {
-        console.log('error removing friend: ', error)
+        console.error('error removing friend: ', error)
         Alert.alert(`Failed to remove ${selectedFriend.gamerTag}`, error.message)
       } finally {
         setSelectedFriend(null)
@@ -82,7 +80,7 @@ const Friends = () => {
       const data = {
         userId: friend.$id,
         isRead: false,
-        type: "MATCH_REQUEST",
+        type: "MATCH_INVITE",
         payload: JSON.stringify({
           requestUserId: userData.$id,
           userName: userData.gamerTag,

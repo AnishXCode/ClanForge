@@ -45,7 +45,7 @@ const Notifications = () => {
             <ThemedText style={[styles.notificationMessage, {color: '#fff'}, !item.isRead && {color: '#000'}]}>{renderPayload.message}</ThemedText>
             
             {item.type === 'MATCH_INVITE' && (
-                <ThemedText style={[styles.actionText, !item.isRead && {color: '#000'}]}>TAP TO JOIN LOBBY</ThemedText>
+                <ThemedText style={[styles.actionText, !item.isRead && {color: '#000'}]}>Tap To Join Squad</ThemedText>
             )}
 
             {item.type === 'FRIEND_REQUEST' && (
